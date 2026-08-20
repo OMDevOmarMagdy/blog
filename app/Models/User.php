@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -25,6 +24,16 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isUser()
+    {
+        return $this->role === 'user';
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -44,7 +53,17 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user');
     }
 }
