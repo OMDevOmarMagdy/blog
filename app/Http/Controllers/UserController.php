@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    // Get user
+    public function getUser(Request $req) {
+        return $req->user();
+    }
+    
     // SingUp user
     public function register(Request $req)
     {
@@ -48,8 +53,8 @@ class UserController extends Controller
         }
 
         // Get the user
-        $user  = User::where('email', $validatedData['email'])->first();
-        
+        $user = User::where('email', $validatedData['email'])->first();
+
         // Token
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -58,6 +63,16 @@ class UserController extends Controller
             "message" => 'You now logged In ....',
             'user'    => $user,
             'token'   => $token,
+        ], 200);
+    }
+
+    public function logout(Request $req)
+    {
+        // Delete current user's token
+        $req->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'You are logged out ......',
         ], 200);
     }
 }
