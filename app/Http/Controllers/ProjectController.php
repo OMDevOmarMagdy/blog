@@ -3,22 +3,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
 use App\Models\Project;
-use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
     public function createProject(StoreProjectRequest $request)
     {
+        $data = $request->validated();
+
         $project = Project::create([
-            'name'        => $request['name'],
-            'status'      => $request['status'],
-            'description' => $request['description'] ?? null,
-            'start_date'  => $request['start_date'] ?? null,
-            'end_date'    => $request['end_date'] ?? null,
+            'name'        => $data['name'],
+            'status'      => $data['status'],
+            'description' => $data['description'] ?? null,
+            'start_date'  => $data['start_date'] ?? null,
+            'end_date'    => $data['end_date'] ?? null,
 
             // The authenticated user creates the project
             // 'created_by'  => auth()->id(),
-            'created_by'  => $request->created_by,
+            'created_by'  => $data->created_by,
 
         ]);
 
