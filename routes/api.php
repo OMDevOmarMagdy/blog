@@ -26,6 +26,7 @@ Route::prefix('tasks')->group(function () {
 
     Route::get('/', [TaskController::class, 'getAllTasks']);
     Route::post('/', [TaskController::class, 'createTask']);
+    Route::get('/{id}/project', [TaskController::class, 'getProjectsRelatedToTask']);
 
 });
 
@@ -33,5 +34,7 @@ Route::prefix('projects')->group(function () {
 
     Route::get('/', [ProjectController::class, 'getAllProjects']);
     Route::post('/', [ProjectController::class, 'createProject']);
+    Route::get('/{id}/tasks', [ProjectController::class, 'getTasksRelatedToProject']);
+    Route::get('{id}', [ProjectController::class, 'getProject']); // find project with its created_by id and name
 
 });

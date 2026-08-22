@@ -47,4 +47,15 @@ class TaskController extends Controller
         ], 201);
     }
 
+    public function getProjectsRelatedToTask($id)
+    {
+        $task    = Task::find($id);
+        $project = $task->project;
+
+        return response()->json([
+            'message' => 'اتفضل يعم البروجيكت بتاعك',
+            'data'    => $project,
+        ], 200);
+    }
+
 }
