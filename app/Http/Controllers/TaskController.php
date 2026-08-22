@@ -17,14 +17,17 @@ class TaskController extends Controller
         ], 201);
     }
 
-    public function getProjectsRelatedToTask($id)
+    public function getProjectRelatedToTask($id)
     {
-        $task    = Task::find($id);
-        $project = $task->project;
+        $task = Task::with([
+            'project:id,name,created_by',
+            'assignedTo:id,name',
+            'project.creator:id,name',
+        ])->find($id);
 
         return response()->json([
-            'message' => 'اتفضل يعم البروجيكت بتاعك',
-            'data'    => $project,
+            'message' => 'A task with its project, assignee, and project creator',
+            'data'    => $task,
         ], 200);
     }
 

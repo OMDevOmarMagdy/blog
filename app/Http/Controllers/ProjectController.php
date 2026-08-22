@@ -18,9 +18,8 @@ class ProjectController extends Controller
             'end_date'    => $data['end_date'] ?? null,
 
             // The authenticated user creates the project
-            // 'created_by'  => auth()->id(),
-            'created_by'  => $data->created_by,
-
+            'created_by'  => auth()->id(),
+            // 'created_by'  => $request->created_by,
         ]);
 
         return response()->json([
@@ -31,7 +30,7 @@ class ProjectController extends Controller
 
     public function getTasksRelatedToProject($id)
     {
-        $project = Project::find($id);
+        $project = Project::findOrFail($id);
         $tasks   = $project->tasks;
 
         return response()->json([
@@ -58,7 +57,7 @@ class ProjectController extends Controller
         $project = Project::with([
             'tasks:id,title,assigned_to,project_id',
             'tasks.assignedTo:id,name',
-        ])->find($id);
+        ])->findOrFail($id);
 
         // $project = Project::with([
         //     'tasks',
@@ -68,6 +67,17 @@ class ProjectController extends Controller
         return response()->json([
             'message' => 'Here your project...',
             'project' => $project,
+        ], 200);
+    }
+
+    // getAllProjects
+    public function getAllProjects()
+    {
+        $projects = Project::all();
+
+        return response()->json([
+            'message'  => $projects->isEmpty() ? 'No projects found ..' : "All projects fetched successfully ..",
+            'projects' => $projects,
         ], 200);
     }
 }
