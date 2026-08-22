@@ -1,34 +1,31 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginUserRequest;
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     // Get user
-    public function getUser(Request $req) {
+    public function getUser(Request $req)
+    {
         return $req->user();
     }
-    
+
     // SingUp user
-    public function register(Request $req)
+    public function register(RegisterUserRequest $req)
     {
-        // Validate incoming data
-        $ValidatedData = $req->validate([
-            'name'     => ['required', 'string'],
-            'email'    => ['required', 'string', 'email', Rule::unique('users', 'email')],
-            'password' => ['required', 'string', 'confirmed'],
-        ]);
+        $data = $req->validated();
 
         // Create user in DB
         $user = User::create([
-            'name'     => $ValidatedData['name'],
-            'email'    => $ValidatedData['email'],
-            'password' => Hash::make($ValidatedData['password']),
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
         // Send response
@@ -38,13 +35,9 @@ class UserController extends Controller
         ], 201);
     }
 
-    public function login(Request $req)
+    public function login(LoginUserRequest $req)
     {
-        // Validate incoming data
-        $validatedData = $req->validate([
-            'email'    => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $validatedData = $req->validated();
 
         if (! Auth::attempt($validatedData)) {
             return response()->json([
