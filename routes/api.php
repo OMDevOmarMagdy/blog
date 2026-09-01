@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
+use App\Mail\ForgetPassMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Authentication
@@ -44,3 +46,10 @@ Route::prefix('projects')->group(function () {
     Route::get('{id}', [ProjectController::class, 'getProject']); // find project with its created_by id and name
 
 });
+
+// Route::get('/send', function () {
+//     Mail::to('om8622145@gmail.com')->send(new ForgetPassMail());
+//     return response('email is send .....');
+// });
+
+Route::post('/forgot-password', [UserController::class, 'forgetPassword']);
