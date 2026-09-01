@@ -97,8 +97,11 @@ class UserController extends Controller
             ]
         );
 
+        // Create the reset URL
+        $resetUrl = 'http://localhost:3000/auth/reset-password?token=' . urlencode($token) . '&email=' . urlencode($user->email);
+
         // Send the password reset email
-        Mail::to($user->email)->send(new ForgetPassMail($user->name, $user->email, $token));
+        Mail::to($user->email)->send(new ForgetPassMail($user->name, $user->email, $resetUrl));
 
         return response()->json([
             'message' => 'Password reset email sent successfully',

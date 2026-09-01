@@ -18,7 +18,7 @@ class ForgetPassMail extends Mailable
     public function __construct(
         public string $name,
         public string $email,
-        public string $token,
+        public string $resetUrl,
     ) {
 
     }
@@ -45,14 +45,13 @@ class ForgetPassMail extends Mailable
                 <p>We received a request to reset your password. </p>
 
                 <p>
-                    Your password reset token is:
+                    Your password reset link is below. If you did not request a password reset, you can ignore this email.:
                 </p>
 
-                <h2>{$this->token}</h2>
-
-                <p>
-                    If you did not request a password reset, you can ignore this email.
-                </p>"
+                <a href=\"{$this->resetUrl}\">
+                    Reset Password
+                </a>
+                "
             ,
         );
     }
