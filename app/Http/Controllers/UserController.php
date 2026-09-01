@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Mail\ForgetPassMail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -101,6 +102,49 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Password reset email sent successfully',
+        ], 200);
+    }
+
+    // Reset password
+    // {
+    // "email": "user@gmail.com",
+    // "token": "THE_TOKEN_FROM_EMAIL",
+    // "password": "newPassword123",
+    // "password_confirmation": "newPassword123"
+    // }
+
+    public function resetPassword(ResetPasswordRequest $req)
+    {
+        // Validate the request data
+        $validatedData = $req->validated();
+
+        // Find the user by email
+        $user = User::where('email', $validatedData['email'])->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        // Check if the token is valid
+        $tokenData = DB::table('password_reset_tokens')->where('email', $user->email)->first();
+
+        if (! $tokenData || ! Hash::check($validatedData['token'], $tokenData->token)) {
+            return response()->json([
+                'message' => 'Invalid or expired token',
+            ], 400);
+        }
+
+        // Update the user's password
+        $user->password = Hash::make($validatedData['password']);
+        $user->save();
+
+        // Delete the token after successful password reset
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        return response()->json([
+            'message' => 'Password reset successfully',
         ], 200);
     }
 }

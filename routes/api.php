@@ -3,8 +3,6 @@
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
-use App\Mail\ForgetPassMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Authentication
@@ -13,6 +11,8 @@ Route::prefix('auth')->group(function () {
     // Public auth routes
     Route::post('register', [UserController::class, 'register']);
     Route::post('login', [UserController::class, 'login']);
+    Route::post('/forgot-password', [UserController::class, 'forgetPassword']);
+    Route::post('/reset-password', [UserController::class, 'resetPassword']);
 
     // Protected auth routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -51,5 +51,3 @@ Route::prefix('projects')->group(function () {
 //     Mail::to('om8622145@gmail.com')->send(new ForgetPassMail());
 //     return response('email is send .....');
 // });
-
-Route::post('/forgot-password', [UserController::class, 'forgetPassword']);
