@@ -123,16 +123,32 @@ class UserController extends Controller
 
         if (! $user) {
             return response()->json([
-                'message' => 'User not found',
+                'message' => "If the email exists, a password reset link has been sent.",
             ], 404);
         }
 
         // Check if the token is valid
-        $tokenData = DB::table('password_reset_tokens')->where('email', $user->email)->first();
-
-        if (! $tokenData || ! Hash::check($validatedData['token'], $tokenData->token)) {
+        $resetToken = DB::table('password_reset_tokens')->where('email', $user->email)->first();
+        if (! $resetToken) {
             return response()->json([
-                'message' => 'Invalid or expired token',
+                'message' => 'Invalid or expired reset token',
+            ], 400);
+        }
+
+        // Check if the token has expired ( 60 minutes)
+        if ($resetToken->created_at < now()->subMinutes(60)) {
+
+            DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+            return response()->json([
+                'message' => 'Reset token has expired',
+            ], 400);
+        }
+
+        // Check if the provided token matches the hashed token in the database
+        if (! Hash::check($validatedData['token'], $resetToken->token)) {
+            return response()->json([
+                'message' => 'Invalid or expired reset token',
             ], 400);
         }
 
@@ -144,7 +160,7 @@ class UserController extends Controller
         DB::table('password_reset_tokens')->where('email', $user->email)->delete();
 
         return response()->json([
-            'message' => 'Password reset successfully',
+            'message' => 'If the email exists, a password reset link has been sent.',
         ], 200);
     }
 }
