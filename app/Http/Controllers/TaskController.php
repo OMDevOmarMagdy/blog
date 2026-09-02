@@ -31,4 +31,18 @@ class TaskController extends Controller
         ], 200);
     }
 
+    public function getAllTasks()
+    {
+        $tasks = Task::with([
+            'project:id,name,created_by',
+            'assignedTo:id,name',
+            'project.creator:id,name',
+        ])->get();
+
+        return response()->json([
+            'message' => 'All tasks with their project, assignee, and project creator',
+            'data'    => $tasks,
+        ], 200);
+    }
+
 }

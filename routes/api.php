@@ -11,8 +11,8 @@ Route::prefix('auth')->group(function () {
     // Public auth routes
     Route::post('register', [UserController::class, 'register']);
     Route::post('login', [UserController::class, 'login']);
-    Route::post('/forgot-password', [UserController::class, 'forgetPassword']);
-    Route::post('/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('forgot-password', [UserController::class, 'forgetPassword']);
+    Route::post('reset-password', [UserController::class, 'resetPassword']);
 
     // Protected auth routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -24,27 +24,29 @@ Route::prefix('auth')->group(function () {
 
 });
 
+// Tasks Routes
 Route::prefix('tasks')->group(function () {
+    
+    Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/', [TaskController::class, 'getAllTasks']);
-    Route::post('/', [TaskController::class, 'createTask']);
-    Route::get('/{id}/project', [TaskController::class, 'getProjectRelatedToTask']);
+        Route::get('/', [TaskController::class, 'getAllTasks']);
+        Route::post('/', [TaskController::class, 'createTask']);
+        Route::get('/{id}/project', [TaskController::class, 'getProjectRelatedToTask']);
 
+    });
 });
 
 // Projects Routes
 Route::prefix('projects')->group(function () {
 
-    Route::middleware(['auth:sanctum', 'admin'])
-        ->get('/', [ProjectController::class, 'getAllProjects']);
+    Route::middleware('auth:sanctum')->group(function () {
 
-    Route::middleware('auth:sanctum')
-        ->post('/', [ProjectController::class, 'createProject']);
+        Route::post('/', [ProjectController::class, 'createProject']);
+        Route::middleware('admin')->get('/', [ProjectController::class, 'getAllProjects']);
+        Route::get('/{id}/tasks', [ProjectController::class, 'getTasksRelatedToProject']);
+        Route::get('{id}', [ProjectController::class, 'getProject']); // find project with its created_by id and name
 
-    Route::get('/{id}/tasks', [ProjectController::class, 'getTasksRelatedToProject']);
-
-    Route::get('{id}', [ProjectController::class, 'getProject']); // find project with its created_by id and name
-
+    });
 });
 
 // Route::get('/send', function () {
