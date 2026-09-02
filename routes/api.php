@@ -30,6 +30,7 @@ Route::prefix('tasks')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/', [TaskController::class, 'getAllTasks']);
+        Route::get('/{id}', [TaskController::class, 'getTask']);
         Route::post('/', [TaskController::class, 'createTask']);
         Route::get('/{id}/project', [TaskController::class, 'getProjectRelatedToTask']);
 
