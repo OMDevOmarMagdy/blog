@@ -3,9 +3,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
 use App\Models\Project;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+
     public function createProject(StoreProjectRequest $request)
     {
         $data = $request->validated();
@@ -42,27 +45,14 @@ class ProjectController extends Controller
     // getProject
     public function getProject($id)
     {
-        // get the project with the id and name of the creator
-        // $project = Project::with('creator:id,name')->find($id);
-
-        // You replece id with id and name
-        // $project->created_by = [
-        //     'id'   => $project->creator->id,
-        //     'name' => $project->creator->name,
-        // ];
-
-        // Don't print the creator field in the response
-        // unset($project->creator);
-
         $project = Project::with([
             'tasks:id,title,assigned_to,project_id',
             'tasks.assignedTo:id,name',
         ])->findOrFail($id);
 
-        // $project = Project::with([
-        //     'tasks',
-        //     'tasks.assignedTo',
-        // ])->find($id);
+        // You don't pass here the Project class, you pass the project
+        // instance that you want to check if the user can view it or not
+        $this->authorize('view', $project);
 
         return response()->json([
             'message' => 'Here your project...',

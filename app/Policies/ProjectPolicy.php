@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
@@ -13,7 +11,7 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
@@ -21,7 +19,16 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return false;
+        // $project->users->contains($user)
+        // $user->role === 'admin'
+        // $project->users()->where('users.id', $user->id)->exists()
+
+        // Only the creator of the project or a user assigned to a task within the project can view it
+        return $user->role === 'admin'
+        || $user->id === $project->created_by
+        || $project->tasks()
+            ->where('assigned_to', $user->id)
+            ->exists();
     }
 
     /**
@@ -29,7 +36,7 @@ class ProjectPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === 'admin' || $user->role === 'user';
     }
 
     /**
@@ -45,7 +52,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return false;
+        return $user->id === $project->created_by || $user->role === 'admin';
     }
 
     /**
@@ -61,6 +68,6 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 }
