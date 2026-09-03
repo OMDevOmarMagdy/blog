@@ -63,6 +63,8 @@ class ProjectController extends Controller
     // getAllProjects
     public function getAllProjects()
     {
+        $this->authorize('viewAny', Project::class);
+
         $projects = Project::all();
 
         return response()->json([

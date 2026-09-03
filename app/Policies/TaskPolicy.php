@@ -35,7 +35,7 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
@@ -43,7 +43,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
