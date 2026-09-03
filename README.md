@@ -1,42 +1,92 @@
 # Laravel Project & Task API
 
-This project is a Laravel backend API built to practice authentication, authorization, API routes, and database relationships.
+This project is a Laravel backend API built to practice real application development concepts such as authentication, authorization, database relationships, and API route protection.
 
 The project includes:
-
 - User authentication
-- Password reset flow
+- Password reset using email
 - Project management
 - Task management
-- Protected routes using Sanctum
-- Admin-only project listing
+- Admin-only access control
+- Validation using Form Requests
+- Model-based business logic
+- Policies for authorization
 
 ---
 
-## Features
+## Project Structure
+
+### Controllers
+- `UserController`  
+  Handles user registration, login, logout, password reset, and authenticated user retrieval.
+
+- `ProjectController`  
+  Handles project creation, retrieval, task listing, and project-related data.
+
+- `TaskController`  
+  Handles task creation, reading, and relationship with projects.
+
+### Middleware
+- `AdminMiddleware`  
+  Restricts access to admin-only routes, such as listing all projects.
+
+### Requests
+- `RegisterUserRequest`
+- `LoginUserRequest`
+- `ForgetPasswordRequest`
+- `ResetPasswordRequest`
+- `StoreProjectRequest`
+- `StoreTaskRequest`
+
+These are used to validate incoming API requests before processing.
+
+### Models
+- `User`
+- `Project`
+- `Task`
+
+These models define the application data and relationships between users, projects, and tasks.
+
+### Policies
+- `ProjectPolicy`
+- `TaskPolicy`
+
+These policies control which users are allowed to perform actions such as viewing, updating, or deleting projects and tasks.
+
+### Mail
+- `ForgetPassMail`
+
+Used to send password reset emails to users.
+
+### Providers
+- `AppServiceProvider`
+
+Registers application-level services and bootstrapping logic.
+
+---
+
+## Main Features
 
 ### Authentication
-
-- User registration
-- User login
+- Register user
+- Login user
 - Get authenticated user
-- User logout
+- Logout user
 - Forgot password
 - Reset password
 
 ### Projects
-
-- Create a project
-- View a single project
-- View all projects (admin only)
-- View tasks related to a project
+- Create project
+- View project details
+- View all projects
+- View tasks belonging to a project
+- Admin-only access to all projects
 
 ### Tasks
-
+- Create task
 - View all tasks
-- View a single task
-- Create a task
-- View the project related to a task
+- View task details
+- View project related to a task
 
 ---
 
@@ -54,7 +104,6 @@ The project includes:
 ## Main API Routes
 
 ### Auth Routes
-
 - POST /api/auth/register
 - POST /api/auth/login
 - POST /api/auth/forgot-password
@@ -63,63 +112,61 @@ The project includes:
 - POST /api/auth/logout
 
 ### Task Routes
-
 - GET /api/tasks
 - GET /api/tasks/{id}
 - POST /api/tasks
 - GET /api/tasks/{id}/project
 
 ### Project Routes
-
 - POST /api/projects
 - GET /api/projects
 - GET /api/projects/{id}/tasks
 - GET /api/projects/{id}
 
-> Note: GET /api/projects is protected with the admin middleware.
+> Note: GET /api/projects is protected using the admin middleware.
 
 ---
 
-## Project Purpose
+## What I Learned
 
-This project helped me learn:
-
+This project helped me understand:
 - Laravel routing
-- Controller structure
+- Controller-based API structure
 - Request validation
 - Authentication with Sanctum
 - Database relationships
 - Middleware and authorization
-- Email-based password reset
-- Building a structured API
+- Policies for access control
+- Sending email from Laravel
+- Building a structured backend API
 
 ---
 
 ## Project Status
 
 ### Completed
-
-- Laravel project setup
+- Laravel API setup
 - User authentication
 - Password reset flow
-- Project CRUD logic
-- Task CRUD logic
-- Protected API routes
-- Admin route for project listing
-- Model and relationship setup
+- Project logic
+- Task logic
+- Protected routes
+- Admin middleware
+- Validation layer
+- User, project, and task models
+- Policies for authorization
 
 ### Future Improvements
-
-- Better API response format
+- Standardized API response format
 - More advanced authorization rules
-- Automated tests
-- Error handling improvements
-- More project and task filtering
+- Automated testing
+- Better error handling
+- Filtering and pagination
 - Frontend integration
 
 ---
 
-## How to Run
+## Run the Project
 
 ```bash
 composer install
@@ -127,4 +174,3 @@ cp .env.example .env
 php artisan key:generate
 php artisan migrate
 php artisan serve
-```
