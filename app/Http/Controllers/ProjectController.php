@@ -2,12 +2,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Traits\ApiResponse;
 use App\Models\Project;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectController extends Controller
 {
     use AuthorizesRequests;
+    use ApiResponse;
 
     public function createProject(StoreProjectRequest $request)
     {
@@ -25,10 +27,7 @@ class ProjectController extends Controller
             // 'created_by'  => $request->created_by,
         ]);
 
-        return response()->json([
-            'message' => 'Project created successfully',
-            'project' => $project,
-        ], 201);
+        return $this->successResponse('Project created successfully', 201, $project);
     }
 
     public function getTasksRelatedToProject($id)
@@ -36,10 +35,7 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $tasks   = $project->tasks;
 
-        return response()->json([
-            'message' => 'اتفضل يعم التاسكات بتاعتك',
-            'data'    => $tasks,
-        ], 200);
+        return $this->successResponse('Tasks related to project fetched successfully', 200, $tasks);
     }
 
     // getProject
@@ -54,10 +50,7 @@ class ProjectController extends Controller
         // instance that you want to check if the user can view it or not
         $this->authorize('view', $project);
 
-        return response()->json([
-            'message' => 'Here your project...',
-            'project' => $project,
-        ], 200);
+        return $this->successResponse('Project fetched successfully', 200, $project);
     }
 
     // getAllProjects
@@ -67,9 +60,10 @@ class ProjectController extends Controller
 
         $projects = Project::all();
 
-        return response()->json([
-            'message'  => $projects->isEmpty() ? 'No projects found ..' : "All projects fetched successfully ..",
-            'projects' => $projects,
-        ], 200);
+        return $this->successResponse(
+            $projects->isEmpty() ? 'No projects found ..' : "All projects fetched successfully ..",
+            200,
+            $projects
+        );
     }
 }

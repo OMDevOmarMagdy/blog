@@ -5,6 +5,7 @@ use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Traits\ApiResponse;
 use App\Mail\ForgetPassMail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
+    use ApiResponse;
+
     // Get user
     public function getUser(Request $req)
     {
@@ -33,11 +36,7 @@ class UserController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        // Send response
-        return response([
-            "message" => 'User created successfully...',
-            "user"    => $user,
-        ], 201);
+        return $this->successResponse('User created successfully', 201, $user);
     }
 
     public function login(LoginUserRequest $req)
@@ -45,23 +44,23 @@ class UserController extends Controller
         $validatedData = $req->validated();
 
         if (! Auth::attempt($validatedData)) {
-            return response()->json([
-                "message" => 'Invalid email or password',
-            ], 401);
+            return $this->errorResponse('Invalid email or password', 401);
         }
 
         // Get the user
         $user = User::where('email', $validatedData['email'])->first();
+        if (! $user) {
+            return $this->errorResponse('User not found', 404);
+        }
 
         // Token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Response
-        return response()->json([
-            "message" => 'You now logged In ....',
-            'user'    => $user,
-            'token'   => $token,
-        ], 200);
+        return $this->successResponse('You are now logged in', 200, [
+            'user'  => $user,
+            'token' => $token,
+        ]);
     }
 
     public function logout(Request $req)
@@ -69,9 +68,7 @@ class UserController extends Controller
         // Delete current user's token
         $req->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'You are logged out ......',
-        ], 200);
+        return $this->successResponse('You are logged out ......', 200);
     }
 
     public function forgetPassword(ForgetPasswordRequest $req)
@@ -80,9 +77,7 @@ class UserController extends Controller
         $user          = User::where('email', $validatedData['email'])->first();
 
         if (! $user) {
-            return response()->json([
-                'message' => 'User not found',
-            ], 404);
+            return $this->errorResponse('User not found', 404);
         }
 
         // Generate a password reset token
@@ -103,9 +98,7 @@ class UserController extends Controller
         // Send the password reset email
         Mail::to($user->email)->send(new ForgetPassMail($user->name, $user->email, $resetUrl));
 
-        return response()->json([
-            'message' => 'Password reset email sent successfully',
-        ], 200);
+        return $this->successResponse('Password reset email sent successfully', 200);
     }
 
     // Reset password
@@ -125,17 +118,13 @@ class UserController extends Controller
         $user = User::where('email', $validatedData['email'])->first();
 
         if (! $user) {
-            return response()->json([
-                'message' => "If the email exists, a password reset link has been sent.",
-            ], 404);
+            return $this->errorResponse('User not found', 404);
         }
 
         // Check if the token is valid
         $resetToken = DB::table('password_reset_tokens')->where('email', $user->email)->first();
         if (! $resetToken) {
-            return response()->json([
-                'message' => 'Invalid or expired reset token',
-            ], 400);
+            return $this->errorResponse('Invalid or expired reset token', 400);
         }
 
         // Check if the token has expired ( 60 minutes)
@@ -143,16 +132,12 @@ class UserController extends Controller
 
             DB::table('password_reset_tokens')->where('email', $user->email)->delete();
 
-            return response()->json([
-                'message' => 'Reset token has expired',
-            ], 400);
+            return $this->errorResponse('Reset token has expired', 400);
         }
 
         // Check if the provided token matches the hashed token in the database
         if (! Hash::check($validatedData['token'], $resetToken->token)) {
-            return response()->json([
-                'message' => 'Invalid or expired reset token',
-            ], 400);
+            return $this->errorResponse('Invalid or expired reset token', 400);
         }
 
         // Update the user's password
@@ -162,8 +147,6 @@ class UserController extends Controller
         // Delete the token after successful password reset
         DB::table('password_reset_tokens')->where('email', $user->email)->delete();
 
-        return response()->json([
-            'message' => 'If the email exists, a password reset link has been sent.',
-        ], 200);
+        return $this->successResponse('Password reset successfully', 200);
     }
 }

@@ -2,23 +2,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Traits\ApiResponse;
 use App\Models\Task;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
     use AuthorizesRequests;
+    use ApiResponse;
 
     public function createTask(StoreTaskRequest $request)
     {
         $this->authorize('create', Task::class);
-        
+
         $task = Task::create($request->validated());
 
-        return response()->json([
-            'message' => 'Task created successfully',
-            'task'    => $task,
-        ], 201);
+        return $this->successResponse('Task created successfully', 201, $task);
     }
 
     public function getProjectRelatedToTask($id)
@@ -29,10 +28,7 @@ class TaskController extends Controller
             'project.creator:id,name',
         ])->find($id);
 
-        return response()->json([
-            'message' => 'A task with its project, assignee, and project creator',
-            'data'    => $task,
-        ], 200);
+        return $this->successResponse('A task with its project, assignee, and project creator', 200, $task);
     }
 
     public function getAllTasks()
@@ -46,10 +42,11 @@ class TaskController extends Controller
             'project.creator:id,name',
         ])->get();
 
-        return response()->json([
-            'message' => 'All tasks with their project, assignee, and project creator',
-            'data'    => $tasks,
-        ], 200);
+        return $this->successResponse(
+            $tasks->isEmpty() ? 'No tasks found ..' : "All tasks with their project, assignee, and project creator",
+            200,
+            $tasks
+        );
     }
 
     public function getTask($id)
@@ -62,11 +59,7 @@ class TaskController extends Controller
         ])->find($id);
 
         $this->authorize('view', $task);
-        
-        return response()->json([
-            'message' => 'A task with its project, assignee, and project creator',
-            'data'    => $task,
-        ], 200);
-    }
 
+        return $this->successResponse('A task with its project, assignee, and project creator', 200, $task);
+    }
 }
